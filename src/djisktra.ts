@@ -25,25 +25,22 @@ function validateGraph(graph: Graph, source: string, destination?: string): void
     throw new Error(`Source node "${source}" does not exist in the graph.`);
   }
 
+  let foundDestination = destination === undefined || destination in graph;
+
   for (const node in graph) {
     for (const neighbor in graph[node]) {
       const weight = graph[node][neighbor];
       if (!Number.isFinite(weight) || weight < 0) {
         throw new Error(`Invalid edge weight ${weight} on edge ${node} -> ${neighbor}. Weights must be finite and non-negative.`);
       }
+      if (!foundDestination && neighbor === destination) {
+        foundDestination = true;
+      }
     }
   }
 
-  if (destination !== undefined) {
-    const allNodes = new Set(Object.keys(graph));
-    for (const node in graph) {
-      for (const neighbor in graph[node]) {
-        allNodes.add(neighbor);
-      }
-    }
-    if (!allNodes.has(destination)) {
-      throw new Error(`Destination node "${destination}" does not exist in the graph.`);
-    }
+  if (!foundDestination) {
+    throw new Error(`Destination node "${destination}" does not exist in the graph.`);
   }
 }
 
