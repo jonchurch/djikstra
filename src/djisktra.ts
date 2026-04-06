@@ -145,10 +145,10 @@ class Djikstra {
 
     while (predecessors[current]) {
       current = predecessors[current];
-      path.unshift(current);
+      path.push(current);
     }
 
-    return path;
+    return path.reverse();
   }
 
   /**
