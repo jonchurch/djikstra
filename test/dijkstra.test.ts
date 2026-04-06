@@ -113,6 +113,34 @@ describe('Dijkstra', () => {
       }
     });
 
+    it.fails('throws when destination does not exist in graph at all', () => {
+      const graph = {
+        A: { B: 1 },
+        B: { A: 1 }
+      };
+
+      const pathfinder = new Dijkstra();
+      expect(() => {
+        pathfinder.findShortestPath(graph, 'A', 'Z');
+      }).toThrow();
+    });
+
+    it.fails('finds path to node that exists only as a neighbor', () => {
+      const graph = {
+        A: { B: 1 },
+        B: { C: 2 }
+      };
+
+      const pathfinder = new Dijkstra();
+      const result = pathfinder.findShortestPath(graph, 'A', 'C');
+
+      expect(result.status).toBe('reachable');
+      if (result.status === 'reachable') {
+        expect(result.path).toEqual(['A', 'B', 'C']);
+        expect(result.distance).toBe(3);
+      }
+    });
+
     it('finds a valid shortest path when all paths have equal cost', () => {
       const graph = {
         A: { B: 1, C: 1 },
@@ -129,6 +157,51 @@ describe('Dijkstra', () => {
         expect(result.distance).toBe(2);
         expect([['A', 'B', 'D'], ['A', 'C', 'D']]).toContainEqual(result.path);
       }
+    });
+  });
+
+  describe('input validation', () => {
+    it.fails('throws on negative edge weight', () => {
+      const graph = {
+        A: { B: -1 },
+        B: {}
+      };
+
+      const pathfinder = new Dijkstra();
+      expect(() => {
+        pathfinder.findShortestPath(graph, 'A', 'B');
+      }).toThrow();
+    });
+
+    it.fails('throws on NaN edge weight', () => {
+      const graph = {
+        A: { B: NaN },
+        B: {}
+      };
+
+      const pathfinder = new Dijkstra();
+      expect(() => {
+        pathfinder.findShortestPath(graph, 'A', 'B');
+      }).toThrow();
+    });
+
+    it.fails('throws on Infinity edge weight', () => {
+      const graph = {
+        A: { B: Infinity },
+        B: {}
+      };
+
+      const pathfinder = new Dijkstra();
+      expect(() => {
+        pathfinder.findShortestPath(graph, 'A', 'B');
+      }).toThrow();
+    });
+
+    it('throws on empty graph', () => {
+      const pathfinder = new Dijkstra();
+      expect(() => {
+        pathfinder.findShortestPath({}, 'A', 'B');
+      }).toThrow();
     });
   });
 
@@ -181,6 +254,17 @@ describe('Dijkstra', () => {
 
       expect(distances).toEqual({ A: 0 });
     });
+
+    it.fails('includes neighbor-only nodes in results', () => {
+      const graph = {
+        A: { B: 3 }
+      };
+
+      const pathfinder = new Dijkstra();
+      const distances = pathfinder.computeAllPaths(graph, 'A');
+
+      expect(distances['B']).toBe(3);
+    });
   });
 
   describe('computeDistancesAndPaths', () => {
@@ -210,6 +294,19 @@ describe('Dijkstra', () => {
         D: 'B',
         E: 'D'
       });
+    });
+
+    it.fails('includes neighbor-only nodes in distances and predecessors', () => {
+      const graph = {
+        A: { B: 2 },
+        B: { C: 3 }
+      };
+
+      const pathfinder = new Dijkstra();
+      const result = pathfinder.computeDistancesAndPaths(graph, 'A');
+
+      expect(result.distances['C']).toBe(5);
+      expect(result.predecessors['C']).toBe('B');
     });
   });
 });
