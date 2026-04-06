@@ -61,10 +61,74 @@ describe('Dijkstra', () => {
       };
 
       const pathfinder = new Dijkstra();
-      
+
       expect(() => {
         pathfinder.findShortestPath(graph, 'X', 'B');
       }).toThrow('Source node "X" does not exist in the graph.');
+    });
+
+    it('returns distance 0 and path [source] when source === destination', () => {
+      const graph = {
+        A: { B: 1 },
+        B: { A: 1 }
+      };
+
+      const pathfinder = new Dijkstra();
+      const result = pathfinder.findShortestPath(graph, 'A', 'A');
+
+      expect(result.status).toBe('reachable');
+      if (result.status === 'reachable') {
+        expect(result.path).toEqual(['A']);
+        expect(result.distance).toBe(0);
+      }
+    });
+
+    it('handles single-node graph with source === destination', () => {
+      const graph = { A: {} };
+
+      const pathfinder = new Dijkstra();
+      const result = pathfinder.findShortestPath(graph, 'A', 'A');
+
+      expect(result.status).toBe('reachable');
+      if (result.status === 'reachable') {
+        expect(result.path).toEqual(['A']);
+        expect(result.distance).toBe(0);
+      }
+    });
+
+    it('handles zero-weight edges', () => {
+      const graph = {
+        A: { B: 0, C: 5 },
+        B: { C: 0 },
+        C: {}
+      };
+
+      const pathfinder = new Dijkstra();
+      const result = pathfinder.findShortestPath(graph, 'A', 'C');
+
+      expect(result.status).toBe('reachable');
+      if (result.status === 'reachable') {
+        expect(result.distance).toBe(0);
+        expect(result.path).toEqual(['A', 'B', 'C']);
+      }
+    });
+
+    it('finds a valid shortest path when all paths have equal cost', () => {
+      const graph = {
+        A: { B: 1, C: 1 },
+        B: { D: 1 },
+        C: { D: 1 },
+        D: {}
+      };
+
+      const pathfinder = new Dijkstra();
+      const result = pathfinder.findShortestPath(graph, 'A', 'D');
+
+      expect(result.status).toBe('reachable');
+      if (result.status === 'reachable') {
+        expect(result.distance).toBe(2);
+        expect([['A', 'B', 'D'], ['A', 'C', 'D']]).toContainEqual(result.path);
+      }
     });
   });
 
@@ -107,6 +171,15 @@ describe('Dijkstra', () => {
         C: Infinity,
         D: Infinity
       });
+    });
+
+    it('handles source as only node in graph', () => {
+      const graph = { A: {} };
+
+      const pathfinder = new Dijkstra();
+      const distances = pathfinder.computeAllPaths(graph, 'A');
+
+      expect(distances).toEqual({ A: 0 });
     });
   });
 
