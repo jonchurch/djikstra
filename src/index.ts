@@ -1,3 +1,2 @@
-import Djikstra from './djisktra.js';
-
-export default Djikstra;
+export { findShortestPath, computeAllPaths, computeDistancesAndPaths } from './djisktra.js';
+export type { Graph, GraphNode, PathResult, ReachableResult, UnreachableResult } from './djisktra.js';

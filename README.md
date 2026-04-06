@@ -14,7 +14,7 @@ npm install djikstra
 ## Usage
 
 ```typescript
-import Djikstra from 'djikstra';
+import { findShortestPath } from 'djikstra';
 
 const graph = {
   A: { B: 5, C: 2 },
@@ -24,8 +24,7 @@ const graph = {
   E: { D: 2 },
 };
 
-const pathfinder = new Djikstra();
-const result = pathfinder.findShortestPath(graph, 'A', 'E');
+const result = findShortestPath(graph, 'A', 'E');
 
 if (result.status === 'reachable') {
   console.log(result.path);     // ['A', 'B', 'D', 'E']

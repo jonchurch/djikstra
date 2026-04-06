@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import Dijkstra from '../src/index.js';
+import { findShortestPath, computeAllPaths, computeDistancesAndPaths } from '../src/index.js';
 
 describe('Dijkstra', () => {
   describe('findShortestPath', () => {
@@ -12,8 +12,7 @@ describe('Dijkstra', () => {
         E: { D: 2 }
       };
 
-      const pathfinder = new Dijkstra();
-      const result = pathfinder.findShortestPath(graph, 'A', 'E');
+      const result = findShortestPath(graph, 'A', 'E');
 
       expect(result.status).toBe('reachable');
       if (result.status === 'reachable') {
@@ -30,8 +29,7 @@ describe('Dijkstra', () => {
         D: { B: 5, C: 1 }
       };
 
-      const pathfinder = new Dijkstra();
-      const result = pathfinder.findShortestPath(graph, 'A', 'D');
+      const result = findShortestPath(graph, 'A', 'D');
 
       expect(result.status).toBe('reachable');
       if (result.status === 'reachable') {
@@ -48,8 +46,7 @@ describe('Dijkstra', () => {
         D: { C: 1 }
       };
 
-      const pathfinder = new Dijkstra();
-      const result = pathfinder.findShortestPath(graph, 'A', 'C');
+      const result = findShortestPath(graph, 'A', 'C');
       
       expect(result.status).toBe('unreachable');
     });
@@ -60,10 +57,8 @@ describe('Dijkstra', () => {
         B: { A: 1 }
       };
 
-      const pathfinder = new Dijkstra();
-
       expect(() => {
-        pathfinder.findShortestPath(graph, 'X', 'B');
+        findShortestPath(graph, 'X', 'B');
       }).toThrow('Source node "X" does not exist in the graph.');
     });
 
@@ -73,8 +68,7 @@ describe('Dijkstra', () => {
         B: { A: 1 }
       };
 
-      const pathfinder = new Dijkstra();
-      const result = pathfinder.findShortestPath(graph, 'A', 'A');
+      const result = findShortestPath(graph, 'A', 'A');
 
       expect(result.status).toBe('reachable');
       if (result.status === 'reachable') {
@@ -86,8 +80,7 @@ describe('Dijkstra', () => {
     it('handles single-node graph with source === destination', () => {
       const graph = { A: {} };
 
-      const pathfinder = new Dijkstra();
-      const result = pathfinder.findShortestPath(graph, 'A', 'A');
+      const result = findShortestPath(graph, 'A', 'A');
 
       expect(result.status).toBe('reachable');
       if (result.status === 'reachable') {
@@ -103,8 +96,7 @@ describe('Dijkstra', () => {
         C: {}
       };
 
-      const pathfinder = new Dijkstra();
-      const result = pathfinder.findShortestPath(graph, 'A', 'C');
+      const result = findShortestPath(graph, 'A', 'C');
 
       expect(result.status).toBe('reachable');
       if (result.status === 'reachable') {
@@ -119,9 +111,8 @@ describe('Dijkstra', () => {
         B: { A: 1 }
       };
 
-      const pathfinder = new Dijkstra();
       expect(() => {
-        pathfinder.findShortestPath(graph, 'A', 'Z');
+        findShortestPath(graph, 'A', 'Z');
       }).toThrow();
     });
 
@@ -131,8 +122,7 @@ describe('Dijkstra', () => {
         B: { C: 2 }
       };
 
-      const pathfinder = new Dijkstra();
-      const result = pathfinder.findShortestPath(graph, 'A', 'C');
+      const result = findShortestPath(graph, 'A', 'C');
 
       expect(result.status).toBe('reachable');
       if (result.status === 'reachable') {
@@ -149,8 +139,7 @@ describe('Dijkstra', () => {
         D: {}
       };
 
-      const pathfinder = new Dijkstra();
-      const result = pathfinder.findShortestPath(graph, 'A', 'D');
+      const result = findShortestPath(graph, 'A', 'D');
 
       expect(result.status).toBe('reachable');
       if (result.status === 'reachable') {
@@ -167,9 +156,8 @@ describe('Dijkstra', () => {
         B: {}
       };
 
-      const pathfinder = new Dijkstra();
       expect(() => {
-        pathfinder.findShortestPath(graph, 'A', 'B');
+        findShortestPath(graph, 'A', 'B');
       }).toThrow();
     });
 
@@ -179,9 +167,8 @@ describe('Dijkstra', () => {
         B: {}
       };
 
-      const pathfinder = new Dijkstra();
       expect(() => {
-        pathfinder.findShortestPath(graph, 'A', 'B');
+        findShortestPath(graph, 'A', 'B');
       }).toThrow();
     });
 
@@ -191,16 +178,14 @@ describe('Dijkstra', () => {
         B: {}
       };
 
-      const pathfinder = new Dijkstra();
       expect(() => {
-        pathfinder.findShortestPath(graph, 'A', 'B');
+        findShortestPath(graph, 'A', 'B');
       }).toThrow();
     });
 
     it('throws on empty graph', () => {
-      const pathfinder = new Dijkstra();
       expect(() => {
-        pathfinder.findShortestPath({}, 'A', 'B');
+        findShortestPath({}, 'A', 'B');
       }).toThrow();
     });
   });
@@ -215,8 +200,7 @@ describe('Dijkstra', () => {
         E: { D: 2 }
       };
 
-      const pathfinder = new Dijkstra();
-      const distances = pathfinder.computeAllPaths(graph, 'A');
+      const distances = computeAllPaths(graph, 'A');
 
       expect(distances).toEqual({
         A: 0,
@@ -235,8 +219,7 @@ describe('Dijkstra', () => {
         D: { C: 1 }
       };
 
-      const pathfinder = new Dijkstra();
-      const distances = pathfinder.computeAllPaths(graph, 'A');
+      const distances = computeAllPaths(graph, 'A');
 
       expect(distances).toEqual({
         A: 0,
@@ -249,8 +232,7 @@ describe('Dijkstra', () => {
     it('handles source as only node in graph', () => {
       const graph = { A: {} };
 
-      const pathfinder = new Dijkstra();
-      const distances = pathfinder.computeAllPaths(graph, 'A');
+      const distances = computeAllPaths(graph, 'A');
 
       expect(distances).toEqual({ A: 0 });
     });
@@ -260,8 +242,7 @@ describe('Dijkstra', () => {
         A: { B: 3 }
       };
 
-      const pathfinder = new Dijkstra();
-      const distances = pathfinder.computeAllPaths(graph, 'A');
+      const distances = computeAllPaths(graph, 'A');
 
       expect(distances['B']).toBe(3);
     });
@@ -277,8 +258,7 @@ describe('Dijkstra', () => {
         E: { D: 2 }
       };
 
-      const pathfinder = new Dijkstra();
-      const result = pathfinder.computeDistancesAndPaths(graph, 'A');
+      const result = computeDistancesAndPaths(graph, 'A');
 
       expect(result.distances).toEqual({
         A: 0,
@@ -302,8 +282,7 @@ describe('Dijkstra', () => {
         B: { C: 3 }
       };
 
-      const pathfinder = new Dijkstra();
-      const result = pathfinder.computeDistancesAndPaths(graph, 'A');
+      const result = computeDistancesAndPaths(graph, 'A');
 
       expect(result.distances['C']).toBe(5);
       expect(result.predecessors['C']).toBe('B');
