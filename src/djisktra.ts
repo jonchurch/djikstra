@@ -30,153 +30,39 @@ interface UnreachableResult {
 type PathResult = ReachableResult | UnreachableResult;
 
 class Djikstra {
-  /**
-   * Finds the shortest path between source and destination nodes.
-   * @param graph The graph represented as an adjacency list.
-   * @param source The source node ID.
-   * @param destination The destination node ID.
-   * @returns A PathResult object that indicates whether the destination is reachable.
-   *          If reachable, includes the path and total distance.
-   * @throws Only if the source node doesn't exist in the graph.
-   */
   findShortestPath(graph: Graph, source: string, destination: string): PathResult {
-    // Validate inputs
-    if (!graph[source]) {
-      throw new Error(`Source node "${source}" does not exist in the graph.`);
-    }
+    this.validateGraph(graph, source, destination);
 
-    // Validate edge weights
-    for (const node in graph) {
-      for (const neighbor in graph[node]) {
-        const weight = graph[node][neighbor];
-        if (!Number.isFinite(weight) || weight < 0) {
-          throw new Error(`Invalid edge weight ${weight} on edge ${node} -> ${neighbor}. Weights must be finite and non-negative.`);
-        }
-      }
-    }
+    const { distances, predecessors } = this.runDijkstra(graph, source, destination);
 
-    // Check destination exists in graph (as a key or as a neighbor)
-    const allNodes = new Set(Object.keys(graph));
-    for (const node in graph) {
-      for (const neighbor in graph[node]) {
-        allNodes.add(neighbor);
-      }
-    }
-    if (!allNodes.has(destination)) {
-      throw new Error(`Destination node "${destination}" does not exist in the graph.`);
-    }
-
-    const distances: Record<string, number> = {};
-    const predecessors: Record<string, string> = {};
-    const visited = new Set<string>();
-
-    // Initialize distances
-    for (const node in graph) {
-      distances[node] = node === source ? 0 : Infinity;
-    }
-
-    // Priority queue for nodes to visit
-    const queue = new MinHeap<{ node: string; distance: number }>(
-      (a: { node: string; distance: number }, b: { node: string; distance: number }) => a.distance - b.distance
-    );
-
-    queue.push({ node: source, distance: 0 });
-
-    while (!queue.isEmpty()) {
-      const current = queue.pop();
-      if (!current) break;
-
-      const { node: currentNode, distance: currentDistance } = current;
-
-      // Skip if we've processed this node already or found a shorter path
-      if (visited.has(currentNode) || currentDistance > distances[currentNode]) {
-        continue;
-      }
-
-      // Mark as visited
-      visited.add(currentNode);
-
-      // If we reached the destination, we can stop
-      if (currentNode === destination) {
-        break;
-      }
-
-      // Check all neighbors
-      const neighbors = graph[currentNode] || {};
-      for (const neighbor in neighbors) {
-        if (visited.has(neighbor)) continue;
-
-        const edgeWeight = neighbors[neighbor];
-        const totalDistance = currentDistance + edgeWeight;
-
-        // If we found a shorter path to this neighbor
-        if (totalDistance < (distances[neighbor] ?? Infinity)) {
-          distances[neighbor] = totalDistance;
-          predecessors[neighbor] = currentNode;
-          queue.push({ node: neighbor, distance: totalDistance });
-        }
-      }
-    }
-
-    // Check if destination is reachable
     if (distances[destination] === undefined || distances[destination] === Infinity) {
       return { status: 'unreachable' };
     }
 
-    // Reconstruct the path
-    const path = this.reconstructPath(predecessors, destination);
-
     return {
       status: 'reachable',
-      path,
+      path: this.reconstructPath(predecessors, destination),
       distance: distances[destination],
     };
   }
 
-  /**
-   * Reconstructs the path from source to destination using the predecessor map.
-   * @param predecessors Map of nodes to their predecessors.
-   * @param destination The destination node.
-   * @returns Array of nodes from source to destination.
-   */
-  private reconstructPath(predecessors: Record<string, string>, destination: string): string[] {
-    const path: string[] = [destination];
-    let current = destination;
-
-    while (predecessors[current]) {
-      current = predecessors[current];
-      path.push(current);
-    }
-
-    return path.reverse();
-  }
-
-  /**
-   * Computes shortest paths from a source to all reachable nodes.
-   * @param graph The graph represented as an adjacency list.
-   * @param source The source node ID.
-   * @returns Map of nodes to their distances from the source.
-   */
   computeAllPaths(graph: Graph, source: string): Record<string, number> {
-    const result = this.computeDistancesAndPaths(graph, source);
-    return result.distances;
+    return this.computeDistancesAndPaths(graph, source).distances;
   }
 
-  /**
-   * Computes both distances and paths from a source to all reachable nodes.
-   * @param graph The graph represented as an adjacency list.
-   * @param source The source node ID.
-   * @returns Object containing distances and predecessors.
-   */
   computeDistancesAndPaths(
     graph: Graph,
     source: string
   ): { distances: Record<string, number>; predecessors: Record<string, string> } {
+    this.validateGraph(graph, source);
+    return this.runDijkstra(graph, source);
+  }
+
+  private validateGraph(graph: Graph, source: string, destination?: string): void {
     if (!graph[source]) {
       throw new Error(`Source node "${source}" does not exist in the graph.`);
     }
 
-    // Validate edge weights
     for (const node in graph) {
       for (const neighbor in graph[node]) {
         const weight = graph[node][neighbor];
@@ -186,11 +72,28 @@ class Djikstra {
       }
     }
 
+    if (destination !== undefined) {
+      const allNodes = new Set(Object.keys(graph));
+      for (const node in graph) {
+        for (const neighbor in graph[node]) {
+          allNodes.add(neighbor);
+        }
+      }
+      if (!allNodes.has(destination)) {
+        throw new Error(`Destination node "${destination}" does not exist in the graph.`);
+      }
+    }
+  }
+
+  private runDijkstra(
+    graph: Graph,
+    source: string,
+    earlyStop?: string
+  ): { distances: Record<string, number>; predecessors: Record<string, string> } {
     const distances: Record<string, number> = {};
     const predecessors: Record<string, string> = {};
     const visited = new Set<string>();
 
-    // Initialize distances
     for (const node in graph) {
       distances[node] = node === source ? 0 : Infinity;
     }
@@ -212,6 +115,10 @@ class Djikstra {
       }
 
       visited.add(currentNode);
+
+      if (earlyStop !== undefined && currentNode === earlyStop) {
+        break;
+      }
 
       const neighbors = graph[currentNode] || {};
       for (const neighbor in neighbors) {
@@ -229,6 +136,18 @@ class Djikstra {
     }
 
     return { distances, predecessors };
+  }
+
+  private reconstructPath(predecessors: Record<string, string>, destination: string): string[] {
+    const path: string[] = [destination];
+    let current = destination;
+
+    while (predecessors[current]) {
+      current = predecessors[current];
+      path.push(current);
+    }
+
+    return path.reverse();
   }
 }
 
