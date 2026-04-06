@@ -41,7 +41,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "postpublish": "npm logout"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^8.27.0",
