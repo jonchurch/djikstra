@@ -45,6 +45,17 @@ class Djikstra {
       throw new Error(`Source node "${source}" does not exist in the graph.`);
     }
 
+    // Check destination exists in graph (as a key or as a neighbor)
+    const allNodes = new Set(Object.keys(graph));
+    for (const node in graph) {
+      for (const neighbor in graph[node]) {
+        allNodes.add(neighbor);
+      }
+    }
+    if (!allNodes.has(destination)) {
+      throw new Error(`Destination node "${destination}" does not exist in the graph.`);
+    }
+
     const distances: Record<string, number> = {};
     const predecessors: Record<string, string> = {};
     const visited = new Set<string>();

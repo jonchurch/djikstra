@@ -113,7 +113,7 @@ describe('Dijkstra', () => {
       }
     });
 
-    it.fails('throws when destination does not exist in graph at all', () => {
+    it('throws when destination does not exist in graph at all', () => {
       const graph = {
         A: { B: 1 },
         B: { A: 1 }
