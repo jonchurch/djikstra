@@ -45,6 +45,16 @@ class Djikstra {
       throw new Error(`Source node "${source}" does not exist in the graph.`);
     }
 
+    // Validate edge weights
+    for (const node in graph) {
+      for (const neighbor in graph[node]) {
+        const weight = graph[node][neighbor];
+        if (!Number.isFinite(weight) || weight < 0) {
+          throw new Error(`Invalid edge weight ${weight} on edge ${node} -> ${neighbor}. Weights must be finite and non-negative.`);
+        }
+      }
+    }
+
     // Check destination exists in graph (as a key or as a neighbor)
     const allNodes = new Set(Object.keys(graph));
     for (const node in graph) {
@@ -164,6 +174,16 @@ class Djikstra {
   ): { distances: Record<string, number>; predecessors: Record<string, string> } {
     if (!graph[source]) {
       throw new Error(`Source node "${source}" does not exist in the graph.`);
+    }
+
+    // Validate edge weights
+    for (const node in graph) {
+      for (const neighbor in graph[node]) {
+        const weight = graph[node][neighbor];
+        if (!Number.isFinite(weight) || weight < 0) {
+          throw new Error(`Invalid edge weight ${weight} on edge ${node} -> ${neighbor}. Weights must be finite and non-negative.`);
+        }
+      }
     }
 
     const distances: Record<string, number> = {};

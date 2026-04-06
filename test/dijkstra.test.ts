@@ -161,7 +161,7 @@ describe('Dijkstra', () => {
   });
 
   describe('input validation', () => {
-    it.fails('throws on negative edge weight', () => {
+    it('throws on negative edge weight', () => {
       const graph = {
         A: { B: -1 },
         B: {}
@@ -173,7 +173,7 @@ describe('Dijkstra', () => {
       }).toThrow();
     });
 
-    it.fails('throws on NaN edge weight', () => {
+    it('throws on NaN edge weight', () => {
       const graph = {
         A: { B: NaN },
         B: {}
@@ -185,7 +185,7 @@ describe('Dijkstra', () => {
       }).toThrow();
     });
 
-    it.fails('throws on Infinity edge weight', () => {
+    it('throws on Infinity edge weight', () => {
       const graph = {
         A: { B: Infinity },
         B: {}
