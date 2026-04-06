@@ -91,23 +91,19 @@ export class MinHeap<T> {
     while (true) {
       const leftChildIndex = 2 * index + 1;
       const rightChildIndex = 2 * index + 2;
-      let smallestIndex = index;
+      let smallestIndex = -1;
 
-      if (
-        leftChildIndex < length &&
-        this.compare(this.data[leftChildIndex], this.data[smallestIndex]) < 0
-      ) {
+      if (leftChildIndex < length) {
         smallestIndex = leftChildIndex;
+        if (
+          rightChildIndex < length &&
+          this.compare(this.data[rightChildIndex], this.data[leftChildIndex]) < 0
+        ) {
+          smallestIndex = rightChildIndex;
+        }
       }
 
-      if (
-        rightChildIndex < length &&
-        this.compare(this.data[rightChildIndex], this.data[smallestIndex]) < 0
-      ) {
-        smallestIndex = rightChildIndex;
-      }
-
-      if (smallestIndex === index) break;
+      if (smallestIndex === -1 || this.compare(item, this.data[smallestIndex]) <= 0) break;
 
       this.data[index] = this.data[smallestIndex];
       index = smallestIndex;
