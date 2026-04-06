@@ -66,17 +66,62 @@ describe('MinHeap', () => {
 
   it('handles duplicate values correctly', () => {
     const heap = new MinHeap<number>((a, b) => a - b);
-    
+
     heap.push(5);
     heap.push(3);
     heap.push(3);
     heap.push(5);
-    
+
     expect(heap.size()).toBe(4);
     expect(heap.pop()).toBe(3);
     expect(heap.pop()).toBe(3);
     expect(heap.pop()).toBe(5);
     expect(heap.pop()).toBe(5);
     expect(heap.isEmpty()).toBe(true);
+  });
+
+  // Regression: bubbleDown uses a shift-based approach where it saves the
+  // item being sifted and shifts children up. After the first shift,
+  // this.data[index] is stale (holds the old child, not the item being
+  // moved), but the comparison still references this.data[smallestIndex]
+  // where smallestIndex === index. This causes misordering for inputs that
+  // require more than one level of sifting.
+
+  it('pops already-sorted input in correct order', () => {
+    const heap = new MinHeap<number>((a, b) => a - b);
+    for (const v of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]) heap.push(v);
+
+    const result: number[] = [];
+    while (!heap.isEmpty()) result.push(heap.pop()!);
+
+    expect(result).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+  });
+
+  it('pops reverse-sorted input in correct order', () => {
+    const heap = new MinHeap<number>((a, b) => a - b);
+    for (const v of [10, 9, 8, 7, 6, 5, 4, 3, 2, 1]) heap.push(v);
+
+    const result: number[] = [];
+    while (!heap.isEmpty()) result.push(heap.pop()!);
+
+    expect(result).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+  });
+
+  it('pops 1000 random elements in sorted order', () => {
+    const heap = new MinHeap<number>((a, b) => a - b);
+    const values: number[] = [];
+    // seeded-ish: deterministic sequence so the test is reproducible
+    let seed = 42;
+    for (let i = 0; i < 1000; i++) {
+      seed = (seed * 1103515245 + 12345) & 0x7fffffff;
+      values.push(seed % 10000);
+    }
+    for (const v of values) heap.push(v);
+
+    const sorted = [...values].sort((a, b) => a - b);
+    const result: number[] = [];
+    while (!heap.isEmpty()) result.push(heap.pop()!);
+
+    expect(result).toEqual(sorted);
   });
 });
