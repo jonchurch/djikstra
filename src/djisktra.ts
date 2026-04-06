@@ -89,7 +89,7 @@ class Djikstra {
         const totalDistance = currentDistance + edgeWeight;
 
         // If we found a shorter path to this neighbor
-        if (totalDistance < distances[neighbor]) {
+        if (totalDistance < (distances[neighbor] ?? Infinity)) {
           distances[neighbor] = totalDistance;
           predecessors[neighbor] = currentNode;
           queue.push({ node: neighbor, distance: totalDistance });
@@ -98,7 +98,7 @@ class Djikstra {
     }
 
     // Check if destination is reachable
-    if (distances[destination] === Infinity) {
+    if (distances[destination] === undefined || distances[destination] === Infinity) {
       return { status: 'unreachable' };
     }
 
@@ -189,7 +189,7 @@ class Djikstra {
         const edgeWeight = neighbors[neighbor];
         const totalDistance = currentDistance + edgeWeight;
 
-        if (totalDistance < distances[neighbor]) {
+        if (totalDistance < (distances[neighbor] ?? Infinity)) {
           distances[neighbor] = totalDistance;
           predecessors[neighbor] = currentNode;
           queue.push({ node: neighbor, distance: totalDistance });

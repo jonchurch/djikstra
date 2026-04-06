@@ -125,7 +125,7 @@ describe('Dijkstra', () => {
       }).toThrow();
     });
 
-    it.fails('finds path to node that exists only as a neighbor', () => {
+    it('finds path to node that exists only as a neighbor', () => {
       const graph = {
         A: { B: 1 },
         B: { C: 2 }
@@ -255,7 +255,7 @@ describe('Dijkstra', () => {
       expect(distances).toEqual({ A: 0 });
     });
 
-    it.fails('includes neighbor-only nodes in results', () => {
+    it('includes neighbor-only nodes in results', () => {
       const graph = {
         A: { B: 3 }
       };
@@ -296,7 +296,7 @@ describe('Dijkstra', () => {
       });
     });
 
-    it.fails('includes neighbor-only nodes in distances and predecessors', () => {
+    it('includes neighbor-only nodes in distances and predecessors', () => {
       const graph = {
         A: { B: 2 },
         B: { C: 3 }
